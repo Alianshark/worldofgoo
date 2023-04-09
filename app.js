@@ -11,7 +11,7 @@ const firstball = {
     x: 500,
     y: 100,
     vx: 0,
-    vy: 1,
+    vy: 0,
     width: 50,
     height: 50,
     img: document.querySelector('#' + 'firstId'),
@@ -30,6 +30,23 @@ function applyGravity (ball) {
     ball.vx += forceX;
     ball.vy += forceY;
 }
+
+function applyTension (ball) {
+    const rodLength = 100;
+    const dist = ball.y;
+    const vidhulenniya = dist - rodLength;
+    const tensionForce = -k * vidhulenniya;
+    ball.vy += tensionForce;
+    /*
+    console.log('position: ',ball.y);
+    console.log('vy: ',ball.vy);
+    console.log('dist: ',dist);
+    console.log('vidhuleniya: ',vidhulenniya);
+    console.log('Tension: ',tensionForce);
+    console.log('================================================================')
+*/
+}
+
 
 function renderImg (ball) {    
     ball.img.className = 'ball';
@@ -55,6 +72,14 @@ function renflection (ball) {
         ball.vx = Math.floor(-ball.vx);
     }  
 }
+let lineElement = document.createElementNS('http://www.w3.org/2000/svg','line');
+lineElement.setAttribute('x1',`0`);
+lineElement.setAttribute("y1",`100`);
+lineElement.setAttribute("x2",`${window.innerWidth}`);
+lineElement.setAttribute("y2",`100`);
+lineElement.setAttribute("stroke","black");
+document.querySelector('#svg').append(lineElement);
+//document.querySelector('#svg').setAttribute('viewBox',`0, 0, ${window.innerWidth}, ${window.innerHeight}`);
 
 function  handleMouseClick (event) {
     ballNumber += 1;
@@ -81,7 +106,7 @@ function  handleMouseClick (event) {
     const newBall = {
         x: event.x,
         y: event.y,
-        vx: 1,
+        vx: 0,
         vy: 0,
         width: 50,
         height: 50,
@@ -102,10 +127,12 @@ function  handleMouseClick (event) {
 function time () {
    
     balls.forEach(move);
+   balls.forEach(applyTension);
+
     balls.forEach(renderImg);
    // balls.forEach(applyGravity);
-    balls.forEach(renflection); 
-    chains.forEach(renderChain);
+   // balls.forEach(renflection); 
+   // chains.forEach(renderChain);
   
 
 }

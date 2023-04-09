@@ -1,20 +1,29 @@
 let ballNumber = 0;
-/*
-const ball = {
-    x: 0,
-    y: 0,
-    vx: 0.5,
-    vy: 0,
-    width: 100,
-    height: 100,
-    img: document.querySelector('#ball'),
+// Tension force constant (Hooks Law)
+const k = 0.01;
+
+let imgElement = document.createElement('img');
+imgElement.id = 'firstId';
+imgElement.src = "ball.png";
+document.body.append(imgElement);
+
+const firstball = {
+    x: 500,
+    y: 100,
+    vx: 0,
+    vy: 1,
+    width: 50,
+    height: 50,
+    img: document.querySelector('#' + 'firstId'),
 }
-*/
-const balls = [];
+
+
+const balls = [firstball];
 const g = 0.1;
 const fps = 1000/60;
 const forceY = g;
 const forceX = 0;
+let chains = [];
 
 
 function applyGravity (ball) {
@@ -23,7 +32,7 @@ function applyGravity (ball) {
 }
 
 function renderImg (ball) {    
-    ball.img.className = 'ball',
+    ball.img.className = 'ball';
     ball.img.style.left = ball.x + 'px';
     ball.img.style.top = ball.y + 'px';
 }
@@ -31,36 +40,61 @@ function renderImg (ball) {
 function move (ball) {
     ball.y += ball.vy;
     ball.x += ball.vx;
-  
 }
-
 function renflection (ball) {
-    if (ball.y > window.innerWidth - 100/2) {
-        ball.vy = -ball.vy * 0.9;
-       
-    }
+    if (ball.y > window.innerHeight - 50 )  
+    {  
+        ball.vy = Math.floor(-ball.vy * 0.92); 
+    } else { 
+        ball.vx += forceX; 
+        ball.vy += forceY; 
+    } 
+    if(ball.x > window.innerWidth - 68) { 
+        ball.vx = Math.floor(-ball.vx);
+    } else if (ball.x <= -100) { 
+        ball.vx = Math.floor(-ball.vx);
+    }  
 }
 
 function  handleMouseClick (event) {
+    ballNumber += 1;
     const id = 'ball-' + ballNumber;
-    
+
+    let lastAddBall = balls[balls.length-1];
+
     let imgElement = document.createElement('img');
     imgElement.id = id;
     imgElement.src = "ball.png";
     document.body.append(imgElement);
+    
+    let lineElement = document.createElementNS('http://www.w3.org/2000/svg','line');
+    lineElement.setAttribute('x1',`${lastAddBall.x}`);
+    lineElement.setAttribute("y1",`${lastAddBall.y}`);
+    lineElement.setAttribute("x2",`${event.x}`);
+    lineElement.setAttribute("y2",`${event.y}`);
+    lineElement.setAttribute("stroke","black");
+    document.querySelector('#svg').append(lineElement);
+    document.querySelector('#svg').setAttribute('viewBox',`0, 0, ${window.innerWidth}, ${window.innerHeight}`);
+
+    //document.querySelector('svg').innerHTML = `<line x1="0" y1="100" x2="100" y2="10" stroke="black" />`;
 
     const newBall = {
         x: event.x,
         y: event.y,
-        vx: 0,
+        vx: 1,
         vy: 0,
-        width: 100,
-        height: 100,
+        width: 50,
+        height: 50,
         img: document.querySelector('#' + id),
     }
 
-    ballNumber += 1;
-    
+    const line = {
+        ballStart : lastAddBall, 
+        ballEnd : newBall, 
+        img : lineElement,
+    }
+
+    chains.push(line);
     balls.push(newBall);
     console.log(balls);
 }
@@ -69,12 +103,20 @@ function time () {
    
     balls.forEach(move);
     balls.forEach(renderImg);
-    balls.forEach(applyGravity);
-    balls.forEach(renflection);
-    /*
-    */
+   // balls.forEach(applyGravity);
+    balls.forEach(renflection); 
+    chains.forEach(renderChain);
+  
 
 }
+
+function renderChain(line) { 
+    line.img.setAttribute('x1', line.ballStart.x);
+    line.img.setAttribute('y1', line.ballStart.y);
+    line.img.setAttribute('x2', line.ballEnd.x);
+    line.img.setAttribute('y2', line.ballEnd.y);
+} 
+
 document.addEventListener('click', handleMouseClick);
 setInterval(time, fps);
  

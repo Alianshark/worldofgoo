@@ -32,21 +32,29 @@ function applyGravity (ball) {
 }
 
 function applyTension (ball) {
+    const point = {
+        x: window.innerWidth/2,
+        y: window.innerHeight/2,
+    }
     const rodLength = 100;
-    const dist = ball.y;
-    const vidhulenniya = dist - rodLength;
-    const tensionForce = -k * vidhulenniya;
-    ball.vy += tensionForce;
+    const distY = ball.y - point.y;
+    const distX = ball.x - point.x;
+    const dist = Math.sqrt(distX*distX + distY*distY);
+    const rostyignennya = dist - rodLength;
+    const tensionForce = -k * rostyignennya;
+    const stepX = distX/dist;
+    const stepY = distY/dist;
+    ball.vy += tensionForce * stepY;
+    ball.vx += tensionForce * stepX;
     /*
     console.log('position: ',ball.y);
     console.log('vy: ',ball.vy);
     console.log('dist: ',dist);
-    console.log('vidhuleniya: ',vidhulenniya);
+    console.log('rostyignennya: ',rostyignennya);
     console.log('Tension: ',tensionForce);
     console.log('================================================================')
 */
 }
-
 
 function renderImg (ball) {    
     ball.img.className = 'ball';
@@ -58,20 +66,22 @@ function move (ball) {
     ball.y += ball.vy;
     ball.x += ball.vx;
 }
+
 function renflection (ball) {
-    if (ball.y > window.innerHeight - 50 )  
-    {  
+    if (ball.y > window.innerHeight - 50 ) {  
         ball.vy = Math.floor(-ball.vy * 0.92); 
     } else { 
         ball.vx += forceX; 
         ball.vy += forceY; 
     } 
+
     if(ball.x > window.innerWidth - 68) { 
         ball.vx = Math.floor(-ball.vx);
     } else if (ball.x <= -100) { 
         ball.vx = Math.floor(-ball.vx);
     }  
 }
+
 let lineElement = document.createElementNS('http://www.w3.org/2000/svg','line');
 lineElement.setAttribute('x1',`0`);
 lineElement.setAttribute("y1",`100`);
@@ -125,16 +135,12 @@ function  handleMouseClick (event) {
 }
 
 function time () {
-   
     balls.forEach(move);
-   balls.forEach(applyTension);
-
+    balls.forEach(applyTension);
     balls.forEach(renderImg);
    // balls.forEach(applyGravity);
    // balls.forEach(renflection); 
    // chains.forEach(renderChain);
-  
-
 }
 
 function renderChain(line) { 
